@@ -1,0 +1,24 @@
+data:
+  symbol: "btcusdt"
+  depth_levels: 10
+  websocket_url: "wss://stream.binance.com:9443/ws"
+  save_dir: "data/raw"
+  processed_dir: "data/processed"
+
+features:
+  lookback_window: 100
+  prediction_horizon: 10
+  threshold: 0.0002 # threshold for classifying price change as up/flat/down (tick size relative changes)
+
+model:
+  batch_size: 64
+  epochs: 15
+  learning_rate: 0.001
+  checkpoint_dir: "checkpoints"
+  device: "cpu" # 'cuda' or 'cpu'
+
+backtest:
+  initial_capital: 100000.0
+  latency_ms: 20
+  transaction_fee: 0.0005 # 0.05% fee
+  slippage: 0.0001
