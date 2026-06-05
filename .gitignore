@@ -12,7 +12,7 @@ pip-delete-this-directory.txt
 .ipynb_checkpoints/
 
 # Data & Models
-data/
+/data/
 *.csv
 *.parquet
 *.h5
