@@ -12,3 +12,5 @@ pytest
 pyarrow
 matplotlib
 tensorboard
+fastapi
+uvicorn

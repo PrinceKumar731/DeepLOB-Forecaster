@@ -16,9 +16,9 @@ def run_tests():
     sys.exit(result.returncode)
 
 def run_dashboard():
-    """Launches the Streamlit app dashboard."""
-    print("Launching Streamlit Dashboard...")
-    cmd = [os.path.join(".venv", "Scripts", "streamlit"), "run", "src/dashboard/app.py"]
+    """Launches the FastAPI backend and React frontend dashboard."""
+    print("Launching LOB Dynamics Dashboard on http://localhost:8000 ...")
+    cmd = [os.path.join(".venv", "Scripts", "python"), "-m", "uvicorn", "src.dashboard.backend:app", "--host", "localhost", "--port", "8000"]
     subprocess.run(cmd)
 
 def run_recording(symbol, duration):
