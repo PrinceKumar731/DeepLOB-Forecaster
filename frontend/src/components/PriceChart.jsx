@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { createChart } from 'lightweight-charts';
+import { createChart, AreaSeries } from 'lightweight-charts';
 
 const PriceChart = ({ data = [], markers = [], title = "Price Chart" }) => {
   const chartContainerRef = useRef(null);
@@ -31,8 +31,8 @@ const PriceChart = ({ data = [], markers = [], title = "Price Chart" }) => {
       },
     });
 
-    // Add Area Series
-    const areaSeries = chart.addAreaSeries({
+    // Add Area Series (Lightweight Charts v5 API)
+    const areaSeries = chart.addSeries(AreaSeries, {
       lineColor: '#f0b90b',
       topColor: 'rgba(240, 185, 11, 0.15)',
       bottomColor: 'rgba(240, 185, 11, 0.0)',
