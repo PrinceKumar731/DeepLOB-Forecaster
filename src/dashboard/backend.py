@@ -159,16 +159,6 @@ def run_binance_websocket():
                     
                     with state_lock:
                         latest_book_state = payload
-                        
-                    # Broadcast to active WebSockets
-                    if active_connections and main_loop:
-                        # Schedule sending via async loop running in main thread
-                        # We push as JSON text
-                        for connection in list(active_connections):
-                            asyncio.run_coroutine_threadsafe(
-                                connection.send_text(json.dumps(payload)),
-                                main_loop
-                            )
                 except Exception as ex:
                     print(f"Error handling live socket tick: {ex}")
                     
@@ -325,19 +315,49 @@ async def websocket_endpoint(websocket: WebSocket):
     active_connections.add(websocket)
     print(f"React Client Connected. Active connections: {len(active_connections)}")
     
+    last_sent_timestamp = 0.0
+
+    async def send_loop():
+        nonlocal last_sent_timestamp
+        try:
+            while True:
+                payload = None
+                with state_lock:
+                    if latest_book_state and latest_book_state.get("timestamp", 0) > last_sent_timestamp:
+                        payload = latest_book_state
+                        last_sent_timestamp = payload["timestamp"]
+                
+                if payload:
+                    await websocket.send_text(json.dumps(payload))
+                
+                await asyncio.sleep(0.1)  # stream at 100ms intervals
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print(f"Error in WebSocket send loop: {e}")
+
+    async def receive_loop():
+        try:
+            while True:
+                data = await websocket.receive_text()
+                try:
+                    msg = json.loads(data)
+                    if "symbol" in msg:
+                        select_symbol({"symbol": msg["symbol"]})
+                except Exception:
+                    pass
+        except WebSocketDisconnect:
+            pass
+        except Exception as e:
+            print(f"Error in WebSocket receive loop: {e}")
+
     try:
-        # Keep connection open, check for symbol change messages from client
-        while True:
-            data = await websocket.receive_text()
-            # If client sends symbol config
-            try:
-                msg = json.loads(data)
-                if "symbol" in msg:
-                    select_symbol({"symbol": msg["symbol"]})
-            except Exception:
-                pass
-    except WebSocketDisconnect:
-        active_connections.remove(websocket)
+        await asyncio.gather(send_loop(), receive_loop())
+    except Exception as e:
+        pass
+    finally:
+        if websocket in active_connections:
+            active_connections.remove(websocket)
         print(f"React Client Disconnected. Active connections: {len(active_connections)}")
 
 # Serve React static production files
