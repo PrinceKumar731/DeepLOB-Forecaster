@@ -38,6 +38,7 @@ state_lock = threading.Lock()
 current_symbol = "btcusdt"
 binance_client_thread = None
 binance_client = None
+main_loop = None
 
 # Model caches
 lgb_model = None
@@ -160,14 +161,13 @@ def run_binance_websocket():
                         latest_book_state = payload
                         
                     # Broadcast to active WebSockets
-                    if active_connections:
+                    if active_connections and main_loop:
                         # Schedule sending via async loop running in main thread
                         # We push as JSON text
-                        loop = asyncio.get_event_loop()
                         for connection in list(active_connections):
                             asyncio.run_coroutine_threadsafe(
                                 connection.send_text(json.dumps(payload)),
-                                loop
+                                main_loop
                             )
                 except Exception as ex:
                     print(f"Error handling live socket tick: {ex}")
@@ -187,6 +187,8 @@ def start_background_stream():
 
 @app.on_event("startup")
 async def startup_event():
+    global main_loop
+    main_loop = asyncio.get_running_loop()
     # Start Binance WebSocket listener
     start_background_stream()
 
