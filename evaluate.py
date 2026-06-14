@@ -149,7 +149,7 @@ def main():
     
     if lgb_preds is not None:
         acc = accuracy_score(y_true, lgb_preds)
-        report = classification_report(y_true, lgb_preds, target_names=['Down', 'Flat', 'Up'], output_dict=True)
+        report = classification_report(y_true, lgb_preds, labels=[0, 1, 2], target_names=['Down', 'Flat', 'Up'], output_dict=True)
         results_summary.append({
             "Model": "LightGBM",
             "Accuracy": acc,
@@ -164,7 +164,7 @@ def main():
         
     if deeplob_preds is not None:
         acc = accuracy_score(y_true, deeplob_preds)
-        report = classification_report(y_true, deeplob_preds, target_names=['Down', 'Flat', 'Up'], output_dict=True)
+        report = classification_report(y_true, deeplob_preds, labels=[0, 1, 2], target_names=['Down', 'Flat', 'Up'], output_dict=True)
         results_summary.append({
             "Model": "DeepLOB (PyTorch)",
             "Accuracy": acc,

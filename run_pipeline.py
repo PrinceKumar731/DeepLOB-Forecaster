@@ -147,7 +147,7 @@ def run_training(model_type, epochs):
         print(f"Test Loss:     {val_loss:.4f}")
         
         from sklearn.metrics import classification_report
-        print(classification_report(targets, preds, target_names=['Down', 'Flat', 'Up']))
+        print(classification_report(targets, preds, labels=[0, 1, 2], target_names=['Down', 'Flat', 'Up']))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Limit Order Book High-Frequency Dynamics Pipeline")

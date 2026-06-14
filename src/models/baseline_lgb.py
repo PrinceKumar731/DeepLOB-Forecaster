@@ -75,11 +75,11 @@ class LightGBMModel:
         preds = self.model.predict(X_test)
         
         acc = accuracy_score(y_test, preds)
-        report = classification_report(y_test, preds, target_names=['Down', 'Flat', 'Up'], output_dict=True)
+        report = classification_report(y_test, preds, labels=[0, 1, 2], target_names=['Down', 'Flat', 'Up'], output_dict=True)
         
         print("\n--- LightGBM Evaluation Results ---")
         print(f"Accuracy: {acc:.4f}")
-        print(classification_report(y_test, preds, target_names=['Down', 'Flat', 'Up']))
+        print(classification_report(y_test, preds, labels=[0, 1, 2], target_names=['Down', 'Flat', 'Up']))
         
         return acc, report
 
