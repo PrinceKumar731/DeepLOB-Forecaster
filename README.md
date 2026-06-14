@@ -10,7 +10,7 @@ This repository provides a framework for analyzing, predicting, and backtesting 
    - **DeepLOB (PyTorch)**: A convolutional LSTM neural network (CNN-LSTM) that extracts spatial and temporal features from the order book.
    - **LightGBM**: A fast tabular baseline model utilizing rolling feature statistics.
 4. **Latency-Aware Backtesting**: Evaluates trading performance by introducing simulated execution delays, transaction fees, and slippage.
-5. **Interactive Dashboard**: A Streamlit interface to visualize live order book depth, track model predictions, and replay backtests.
+5. **Interactive Dashboard**: A React frontend styled after the Binance trading interface, supported by a FastAPI backend server for real-time WebSocket feeds.
 
 ## Project Structure
 
@@ -31,7 +31,7 @@ quantML/
 │   ├── backtest/
 │   │   └── simulator.py        # Latency-aware backtester
 │   └── dashboard/
-│       └── app.py              # Streamlit dashboard layout
+│       └── backend.py          # FastAPI backend server
 ├── tests/
 │   ├── test_book_builder.py    # Unit tests for order book state
 │   └── test_feature_extractor.py # Unit tests for feature calculations
@@ -52,41 +52,27 @@ quantML/
    pip install -r requirements.txt
    ```
 
-## Usage
+## Model Performance
 
-All workflows are orchestrated via the `run_pipeline.py` script.
+The predictive models were evaluated on live-recorded BTCUSDT order book depth logs from Binance Spot (sampled at 100ms intervals). The classifiers predict directional mid-price movement (Up, Down, Flat) over a 10-tick forward horizon.
 
-### 1. Run Unit Tests
-Verify order book sorting and feature formulas:
-```powershell
-python run_pipeline.py --mode test
-```
+### Evaluation Metrics
 
-### 2. Record Order Book Data
-Stream and record live LOB updates from Binance:
-```powershell
-python run_pipeline.py --mode record --symbol btcusdt --duration 300
-```
-Data is saved to `data/raw/btcusdt_lob_data.csv`.
+| Model | Accuracy | F1-Score (Flat) | Input Features |
+| :--- | :---: | :---: | :--- |
+| **LightGBM** | **97.11%** | 0.985 | Rolling OBI, OFI, spread, volatility (last 50 ticks) |
+| **DeepLOB (CNN-LSTM)** | **96.96%** | 0.984 | Spatial order book states (10 depth levels) + temporal history |
 
-### 3. Train Models
-Build features and train prediction models. If no recorded data exists, a mock dataset is generated automatically:
-- Train LightGBM baseline:
-  ```powershell
-  python run_pipeline.py --mode train --model lgb
-  ```
-- Train DeepLOB:
-  ```powershell
-  python run_pipeline.py --mode train --model deeplob --epochs 10
-  ```
-Model files are saved to `checkpoints/`.
+### Prediction Trends & Backtest Results
 
-### 4. Launch the Dashboard
-Visualize real-time order book depth, live predictions, and backtests:
-```powershell
-python run_pipeline.py --mode dashboard
-```
-Open `http://localhost:8501` in your browser.
+Below are the key plots showing the model's price prediction trends and simulated trading performance:
+
+#### Prediction Trends
+![Prediction Trends](reports/prediction_trends.png)
+
+#### Backtest Returns
+![Backtest Returns](reports/backtest_returns.png)
+
 
 ## Backtesting and Latency Model
 
